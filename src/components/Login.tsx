@@ -6,15 +6,20 @@ export default () => {
   const [password, setPassword] = useState('');
 
   const validateForm = (): Boolean => !!(user && password);
-  const handleSubmit = async (event: SyntheticEvent): Promise<void> => {
+  const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const login = await fetch(`http://localhost:8090/usuario/autenticar?login=${user}&senha=${password}`, { method: 'POST' })
+    const headers = new Headers();
+    headers.append('Content-Type', 'text/plain; charset=utf-8');
+    const login = await fetch(`http://localhost:8090/usuario/autenticar?login=${user}&senha=${password}`, { method: 'POST', headers })
       .then(res => res.json())
       .then(data => data);
-    console.log(login)
+    console.log(login);
     if (!login.autenticado) alert('Não autenticado!')
-    sessionStorage.setItem('auth', login.token);
-    sessionStorage.setItem('TTL', new Date().toISOString());
+    sessionStorage.setItem('token', login.token);
+    sessionStorage.setItem('createdAt', new Date().toISOString());
+    sessionStorage.setItem('name', login.nome);
+    sessionStorage.setItem('adm', String(login.administrador))
+    window.location.replace(`${window.location.href}menu`)
   }
   return (
     <Card >
