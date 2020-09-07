@@ -1,47 +1,26 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-import { Country } from '../types'
-import refreshAuth from '../helpers/refreshAuth';
+import refreshAuth from '../helpers/refreshAuth'
 
+import { Country } from '../types'
 type Data = {
   show: boolean,
   setShow: Function
-  countryState: Country
-  setCountryState: Function
   countriesList: Array<Country>
-};
-export default ({ show, setShow, countryState, setCountryState, countriesList }: Data) => {
+  setCountries: Function
+}
+export default ({ show, setShow, countriesList, setCountries }: Data) => {
   const [countryName, setCountryName] = useState('');
   const [initials, setInitials] = useState('');
   const [demonym, setDemonym] = useState('');
   const handleClose = () => setShow(false);
-  const handleDelete = () => {
-    (async () => {
-      await refreshAuth();
-      const header = new Headers();
-      header.append('Content-Type', 'text/plain; charset=utf-8');
-      await fetch(`${process.env.REACT_APP_API_URL}:${process.env.REACT_APP_API_PORT}/pais/excluir?id=${countryState.id}&token=${sessionStorage.getItem('token')}`,
-        {
-          method: 'GET', headers: header
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            alert('Excluido com sucesso');
-            setCountryState(countriesList.filter(country => country.id !== countryState.id));
-          }
-          else alert(`Falha ao excluir: ${data}`)
-        });
-    })()
-
-  }
   const handleSave = () => {
     const newCountry = {
-      id: countryState.id,
-      nome: countryName || countryState.nome,
-      sigla: initials || countryState.sigla,
-      gentilico: demonym || countryState.gentilico,
+      id: countriesList.length + 1,
+      nome: countryName,
+      sigla: initials,
+      gentilico: demonym,
     }
     const strBody = JSON.stringify(newCountry);
 
@@ -56,8 +35,11 @@ export default ({ show, setShow, countryState, setCountryState, countriesList }:
       })
         .then(data => {
           if (data.ok && data.status === 200) {
+            if (newCountry.nome === countryName) {
+              countriesList.push(newCountry)
+              setCountries(countriesList);
+            }
             alert('Salvo com sucesso')
-            setCountryState(countriesList.map(country => country.id === newCountry.id ? newCountry : country));
           }
           else alert(`Falha ao salvar: ${data.status}`)
 
@@ -68,7 +50,7 @@ export default ({ show, setShow, countryState, setCountryState, countriesList }:
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Editar país</Modal.Title>
+        <Modal.Title>Adicionar País</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
@@ -77,7 +59,6 @@ export default ({ show, setShow, countryState, setCountryState, countriesList }:
             autoFocus
             type="text"
             placeholder="Nome do país"
-            defaultValue={countryState.nome}
             onChange={(e) => setCountryName(e.target.value)}
           />
           <br />
@@ -85,7 +66,6 @@ export default ({ show, setShow, countryState, setCountryState, countriesList }:
           <Form.Control
             type="text"
             placeholder="Sigla"
-            defaultValue={countryState.sigla}
             onChange={(e) => setInitials(e.target.value)}
           />
           <br />
@@ -93,7 +73,6 @@ export default ({ show, setShow, countryState, setCountryState, countriesList }:
           <Form.Control
             type="text"
             placeholder="Aqueles que nasceram no país"
-            defaultValue={countryState.gentilico}
             onChange={(e) => setDemonym(e.target.value)}
           />
         </Form>
@@ -104,9 +83,6 @@ export default ({ show, setShow, countryState, setCountryState, countriesList }:
     </Button>
         <Button variant="secondary" onClick={handleClose}>
           Fechar
-    </Button>
-        <Button variant="danger" onClick={handleDelete}>
-          Excluir
     </Button>
       </Modal.Footer>
     </Modal>

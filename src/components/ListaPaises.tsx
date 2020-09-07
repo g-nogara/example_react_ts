@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button } from 'react-bootstrap';
 
 import ModalEditCountry from './ModalEditCountry';
+import ModalAddCountry from './ModalAddCountry';
 import { Country } from '../types'
 
 export default () => {
   const [listCountries, setCountries] = useState([]);
   const [modalCountry, setModalContry] = useState({} as Country);
   const [show, setShow] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const addCountry = () => setShowCreate(true);
   const handleShow = (country: Country) => {
     setModalContry(country);
     setShow(true);
@@ -22,10 +25,22 @@ export default () => {
         .then(data => {
           data.map((country: Country) => {
             if (!country.nome) country.nome = '-'
-            else country.nome = decodeURIComponent(escape(country.nome))
+            else {
+              try {
+                country.nome = decodeURIComponent(escape(country.nome))
+              } catch (error) {
+                console.log('URI invalida')
+              }
+            } 
             if (!country.sigla || country.sigla.length !== 2) country.sigla = '-'
             if (!country.gentilico) country.gentilico = '-'
-            else country.gentilico = decodeURIComponent(escape(country.gentilico))
+            else {
+              try {
+                country.gentilico = decodeURIComponent(escape(country.gentilico))
+              } catch (error) {
+                console.log('URI invalida')
+              }
+            }
             return country;
           })
           setCountries(data);
@@ -33,7 +48,6 @@ export default () => {
     }
     fetchData();
   }, []);
-
   return (
     <Table striped bordered hover variant="dark">
       <thead>
@@ -71,6 +85,17 @@ export default () => {
           </td>
           </tr>)
         }
+        <tr hidden={!isAdm}>
+          <Button variant="primary" onClick={addCountry}>
+            Adicionar
+          </Button>
+          <ModalAddCountry
+          show={showCreate}
+          setShow={setShowCreate}
+          countriesList={listCountries}
+          setCountries={setCountries}
+           />
+        </tr>
       </tbody>
     </Table>
   )
