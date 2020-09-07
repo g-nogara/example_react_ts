@@ -10,11 +10,16 @@ export default () => {
     event.preventDefault();
     const headers = new Headers();
     headers.append('Content-Type', 'text/plain; charset=utf-8');
-    const login = await fetch(`http://localhost:8090/usuario/autenticar?login=${user}&senha=${password}`, { method: 'POST', headers })
+    const login = await fetch(`${process.env.REACT_APP_API_URL}:${process.env.REACT_APP_API_PORT}/usuario/autenticar?login=${user}&senha=${password}`
+     ,{ method: 'POST', headers })
       .then(res => res.json())
       .then(data => data);
-    console.log(login);
-    if (!login.autenticado) alert('Não autenticado!')
+
+    if (!login.autenticado) {
+      alert('Falha ao autenticar!')
+      return;
+    }
+    
     sessionStorage.setItem('token', login.token);
     sessionStorage.setItem('createdAt', new Date().toISOString());
     sessionStorage.setItem('name', login.nome);
@@ -31,7 +36,7 @@ export default () => {
               <Col>
                 <Form.Control
                   autoFocus
-                  type="user"
+                  type="text"
                   placeholder="Informe o usuário"
                   value={user}
                   onChange={(e) => setUser(e.target.value)}
