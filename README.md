@@ -1,4 +1,4 @@
-##Example React SPA made with TypeScript
+### Example React SPA made with TypeScript
 
 ## Available Scripts
 
