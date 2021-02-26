@@ -1,9 +1,4 @@
-SPA feita em React, utilizando TypeScript.
-Além do boostrap para estilos, projeto foi pensado em usar mínimo de libs possível para fins de demonstração da lógica utilizada
-
----
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+##Example React SPA made with TypeScript
 
 ## Available Scripts
 
